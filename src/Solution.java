@@ -10,6 +10,185 @@ import java.util.*;
 
 public class Solution {
 
+    /**
+    * @Author: Wang Xinxiang
+    * @Description: 37. 解数独
+    * @DateTime: 11/28/2024 2:54 PM
+    * @Params: 
+    * @Return 
+    */
+    public void solveSudoku(char[][] board) {
+        List<Set<Integer>> matrixs = new ArrayList<>();
+        List<Set<Integer>> rows = new ArrayList<>();
+        List<Set<Integer>> columns = new ArrayList<>();
+        int r=3, c=3;
+        for(int i=0; i<r; i++){
+            for(int j=0; j<c; j++){
+                matrixs.add(checkSquare(board, i, j));
+            }
+        }
+        for(int i=0; i<board.length; i++){
+            rows.add(checkRow(board, i));
+        }
+        for(int j=0; j<board.length; j++){
+            columns.add(checkColumn(board, j));
+        }
+
+        Queue<int[]> q = new ArrayDeque<>();
+        for(int i=0; i<board.length; i++){
+            for(int j=0; j<board[0].length; j++){
+                if(board[i][j]=='.'){
+                    q.add(new int[]{i, j});
+                }
+
+            }
+        }
+
+        boolean sign = true;
+        while(sign){
+            sign = false;
+            int len = q.size();
+            for(int i=0; i<len; i++) {
+                int[] pos = q.poll();
+                Set<Integer> row = rows.get(pos[0]);
+                Set<Integer> col = columns.get(pos[1]);
+                Set<Integer> square = matrixs.get((pos[0] / 3) * 3 + pos[1] / 3);
+                Set<Integer> result = getResultForOne(row, col, square);
+                if (result.size() == 1) {
+                    sign = true;
+                    int element = result.iterator().next();
+                    board[pos[0]][pos[1]] = (char) ('0' + element);
+                    row.remove(element);
+                    col.remove(element);
+                    square.remove(element);
+                }
+                else{
+                    q.add(pos);
+                }
+            }
+        }
+
+        if(!q.isEmpty()){
+            List<int[]> list = new ArrayList<>();
+            while(!q.isEmpty()){
+                list.add(q.poll());
+            }
+            Collections.sort(list, new Comparator<int[]>() {
+                @Override
+                public int compare(int[] ints, int[] t1) {
+                    Set<Integer> row = rows.get(ints[0]);
+                    Set<Integer> col = columns.get(ints[1]);
+                    Set<Integer> square = matrixs.get((ints[0] / 3) * 3 + ints[1] / 3);
+                    Set<Integer> result1 = getResultForOne(row, col, square);
+                    row = rows.get(t1[0]);
+                    col = columns.get(t1[1]);
+                    square = matrixs.get((t1[0] / 3) * 3 + t1[1] / 3);
+                    Set<Integer> result2 = getResultForOne(row, col, square);
+                    return result1.size()-result2.size();
+                }
+            });
+            asignOne(board, list, 0, matrixs, rows, columns);
+        }
+        System.out.println();
+
+
+    }
+
+    public boolean asignOne(char[][] board, List<int[]> list, int i,
+                         List<Set<Integer>> matrixs, List<Set<Integer>> rows, List<Set<Integer>> columns){
+        if(i==list.size()){
+            return true;
+        }
+        int[] pos = list.get(i);
+        Set<Integer> row = rows.get(pos[0]);
+        Set<Integer> col = columns.get(pos[1]);
+        Set<Integer> square = matrixs.get((pos[0] / 3) * 3 + pos[1] / 3);
+        Set<Integer> result = getResultForOne(row, col, square);
+        if(result.size()==0){
+            return false;
+        }
+        for(int n : result){
+            row.remove(n);
+            col.remove(n);
+            square.remove(n);
+            if(asignOne(board, list, i+1, matrixs, rows, columns)){
+                board[pos[0]][pos[1]]=(char)('0'+n);
+                return true;
+            }
+            row.add(n);
+            col.add(n);
+            square.add(n);
+        }
+        return false;
+    }
+
+    public Set<Integer> getResultForOne(Set<Integer> row, Set<Integer> col, Set<Integer> square){
+        Set<Integer> res = new HashSet<>();
+        int[] exist = new int[10];
+        for(int n:row){
+            exist[n]++;
+        }
+        for(int n:col){
+            exist[n]++;
+        }
+        for(int n:square){
+            exist[n]++;
+            if(exist[n]==3){
+                res.add(n);
+            }
+        }
+        return res;
+    }
+    public Set<Integer> convertToList(boolean[] exist){
+        Set<Integer> res = new HashSet<>();
+        for(int n=1; n<exist.length; n++){
+            if(!exist[n]){
+                res.add(n);
+                //System.out.print(n+",");
+            }
+        }
+        //System.out.println();
+        return res;
+    }
+
+    public Set<Integer> checkColumn(char[][] board, int j) {
+        boolean[] exist = new boolean[10];
+        for(int i=0; i<board.length; i++){
+            char cur = board[i][j];
+            if(cur!='.'){
+                exist[cur-'0'] = true;
+            }
+        }
+
+        return convertToList(exist);
+    }
+    public Set<Integer> checkRow(char[][] board, int i) {
+        boolean[] exist = new boolean[10];
+        for(int j=0; j<board[0].length; j++){
+            char cur = board[i][j];
+            if(cur!='.'){
+                exist[cur-'0'] = true;
+            }
+        }
+
+        return convertToList(exist);
+    }
+
+
+    public Set<Integer> checkSquare(char[][] board, int i, int j){
+        i *= 3;
+        j *= 3;
+        boolean[] exist = new boolean[10];
+        for(int m=0; m<3; m++){
+            for(int n=0; n<3; n++){
+                char cur = board[i+m][j+n];
+                if(cur!='.'){
+                    exist[cur-'0'] = true;
+                }
+            }
+        }
+        return convertToList(exist);
+    }
 
     public int countPalindromes(List<String> arr) {
         // Write your code here

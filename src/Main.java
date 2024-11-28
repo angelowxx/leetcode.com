@@ -46,12 +46,19 @@ public class Main {
         return null;
     }
     public static void main(String[] args) {
-        int[] nums = new int[]{1,2,2,3,3,4,5,1};
-        List<Integer> list = new ArrayList<>();
-        for(int n:nums){
-            list.add(n);
-        }
-        List<int[]> res = getIndexWithSum(list, 6);
+        Solution solution = new Solution();
+        char[][] board = new char[][]{
+                {'.', '.', '9', '7', '4', '8', '.', '.', '.'},
+                {'7', '.', '.', '.', '.', '.', '.', '.', '.'},
+                {'.', '2', '.', '1', '.', '9', '.', '.', '.'},
+                {'.', '.', '7', '.', '.', '.', '2', '4', '.'},
+                {'.', '6', '4', '.', '1', '.', '5', '9', '.'},
+                {'.', '9', '8', '.', '.', '.', '3', '.', '.'},
+                {'.', '.', '.', '8', '.', '3', '.', '2', '.'},
+                {'.', '.', '.', '.', '.', '.', '.', '.', '6'},
+                {'.', '.', '.', '2', '7', '5', '9', '.', '.'}
+        };
+        solution.solveSudoku(board);
     }
 
     public static List<int[]> getIndexWithSum(List<Integer> list, int num){
